@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>МВД России | Мобильная версия</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', Arial, sans-serif;
+        }
+        html, body {
+            height: 100%;
+            background-color: #f5f5f5;
+            font-size: 16px;
+            line-height: 1.6;
+            -webkit-text-size-adjust: 100%;
+        }
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        .header {
+            background-color: #1a3e72;
+            color: white;
+            padding: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .menu-btn, .search-btn {
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+        .header h1 {
+            font-weight: 500;
+            font-size: 1.1rem;
+            text-align: center;
+            flex-grow: 1;
+        }
+        .content {
+            padding: 1rem;
+            flex: 1;
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+        .news-item {
+            background-color: white;
+            margin-bottom: 1.5rem;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .news-item h2 {
+            color: #1a3e72;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+        .news-item p {
+            color: #555;
+            margin-bottom: 0.8rem;
+            font-size: 0.95rem;
+        }
+        .news-item .date {
+            color: #888;
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+        }
+        .quick-links {
+            display: flex;
+            justify-content: space-around;
+            background-color: white;
+            padding: 1rem 0;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .quick-link {
+            text-align: center;
+            font-size: 0.9rem;
+            color: #1a3e72;
+            flex: 1 1 25%;
+            min-width: 80px;
+            padding: 0.5rem;
+            text-decoration: none;
+        }
+        .quick-link i {
+            display: block;
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .footer {
+            background-color: #1a3e72;
+            color: white;
+            text-align: center;
+            padding: 1rem;
+            font-size: 0.9rem;
+            margin-top: auto;
+        }
+
+        /* Стили для навигационного меню */
+        .nav-menu {
+            position: fixed;
+            top: 0;
+            left: -280px;
+            width: 280px;
+            height: 100%;
+            background-color: white;
+            z-index: 1000;
+            transition: left 0.3s;
+            overflow-y: auto;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+        }
+        .nav-menu.active {
+            left: 0;
+        }
+        .nav-menu-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background-color: #1a3e72;
+            color: white;
+        }
+        .nav-menu-title {
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        .close-btn {
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        .nav-item {
+            padding: 0.8rem 1rem;
+            border-bottom: 1px solid #eee;
+            color: #333;
+            transition: background-color 0.2s;
+        }
+        .nav-item:hover {
+            background-color: #f5f5f5;
+        }
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 999;
+            display: none;
+        }
+        .overlay.active {
+            display: block;
+        }
+
+        /* Новые стили для новостей */
+        .news-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        .news-card {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+        .news-card:hover {
+            transform: translateY(-5px);
+        }
+        .news-image {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+        }
+        .news-content {
+            padding: 1rem;
+        }
+        .news-title {
+            font-size: 1.1rem;
+            color: #1a3e72;
+            margin-bottom: 0.5rem;
+        }
+        .news-excerpt {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+        .news-meta {
+            display: flex;
+            justify-content: space-between;
+            color: #888;
+            font-size: 0.8rem;
+        }
+
+        @media (max-width: 768px) {
+            .news-grid {
+                grid-template-columns: 1fr;
+            }
+            .news-item {
+                padding: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header {
+                padding: 0.8rem;
+            }
+            .content {
+                padding: 0.8rem;
+            }
+            .quick-link {
+                min-width: 70px;
+                font-size: 0.8rem;
+            }
+            .quick-link i {
+                font-size: 1.3rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Оверлей для меню -->
+    <div class="overlay" id="overlay"></div>
+
+    <!-- Навигационное меню -->
+    <div class="nav-menu" id="navMenu">
+        <div class="nav-menu-header">
+            <div class="nav-menu-title">Меню</div>
+            <div class="close-btn" id="closeBtn">×</div>
+        </div>
+        <div class="nav-item">Быстрый вызов полиции</div>
+        <div class="nav-item">Новости</div>
+        <div class="nav-item">Отделения МВД</div>
+        <div class="nav-item">Ваш участковый</div>
+        <div class="nav-item"><a class="link" onclick="window.location.href='kategoria.html'">Категории</a></div>
+        <div class="nav-item">Прием обращений</div>
+        <div class="nav-item">КоАП</div>
+        <div class="nav-item">Экстренные ситуации</div>
+        <div class="nav-item">Полезная информация</div>
+        <div class="nav-item">О полиции</div>
+        <div class="nav-item">Настройки</div>
+    </div>
+
+    <div class="header">
+        <div class="menu-btn" id="menuBtn">☰</div>
+        <h1>МВД Крыма</h1>
+        <div class="search-btn">🔍</div>
+    </div>
+
+    <div class="quick-links">
+        <div class="quick-link">
+            <i>📋</i>
+            О МВД
+        </div>
+        <div class="quick-link">
+            <i>📞</i>
+            Контакты
+        </div>
+        <div class="quick-link">
+            <i>📰</i>
+            Новости
+        </div>
+        <div class="quick-link">
+            <i>ℹ️</i>
+            Услуги
+        </div>
+    </div>
+
+    <div class="content">
+        <!-- Главная новость -->
+        <div class="news-item">
+            <h2>В МВД России обсудили вопросы противодействия коррупции</h2>
+            <p>В Министерстве внутренних дел Российской Федерации под председательством заместителя Министра генерал-полковника полиции Игоря Зубова состоялось заседание межведомственной рабочей группы по противодействию коррупции в системе МВД России.</p>
+        </div>
+
+        <!-- Сетка новостей -->
+        <div class="news-grid">
+            <!-- Новость 1 -->
+            <div class="news-card">
+                <img src="1news.jpg" alt="Новость 1" class="news-image">
+                <div class="news-content">
+                    <h3 class="news-title">В МВД России подвели итоги оперативно-служебной деятельности за апрель</h3>
+                    <p class="news-excerpt">Коллегия МВД России рассмотрела результаты оперативно-служебной деятельности органов внутренних дел за апрель 2025 года.</p>
+                    <div class="news-meta">
+                        <span>Главное</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Новость 2 -->
+            <div class="news-card">
+                <img src="v-novost.webp" class="news-image">
+                <div class="news-content">
+                    <h3 class="news-title">В Москве прошло совещание по вопросам безопасности дорожного движения</h3>
+                    <p class="news-excerpt">Под руководством заместителя Министра внутренних дел Российской Федерации генерал-полковника полиции Александра Горового состоялось всероссийское совещание по вопросам безопасности дорожного движения.</p>
+                    <div class="news-meta">
+                        <span> ГИБДД</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Новость 3 -->
+            <div class="news-card">
+                <img src="3news.jpg" class="news-image">
+                <div class="news-content">
+                    <h3 class="news-title">МВД России предупреждает о новых схемах мошенничества</h3>
+                    <p class="news-excerpt">В Министерстве внутренних дел Российской Федерации рассказали о новых схемах телефонного и интернет-мошенничества и дали рекомендации по защите от них.</p>
+                    <div class="news-meta">
+                        <span> Предупреждение</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Новость 4 -->
+            <div class="news-card">
+                <img class="news-image">
+                <div class="news-content">
+                    <h3 class="news-title">В регионах России проходят мероприятия по правовому информированию детей</h3>
+                    <p class="news-excerpt">Сотрудники органов внутренних дел проводят в школах и детских учреждениях уроки правовой грамотности, посвященные безопасности детей в интернете.</p>
+                    <div class="news-meta">
+                        <span> Дети</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Новость 5 -->
+            <div class="news-card">
+                <img class="news-image">
+                <div class="news-content">
+                    <h3 class="news-title">МВД России усиливает меры по противодействию экстремизму</h3>
+                    <p class="news-excerpt">В Министерстве внутренних дел Российской Федерации состоялось совещание по вопросам противодействия экстремистской деятельности.</p>
+                    <div class="news-meta">
+                        <span> Безопасность</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Новость 6 -->
+            <div class="news-card">
+                <img class="news-image">
+                <div class="news-content">
+                    <h3 class="news-title">В МВД России обсудили вопросы цифровизации ведомства</h3>
+                    <p class="news-excerpt">Под руководством заместителя Министра внутренних дел Российской Федерации состоялось совещание по вопросам цифровой трансформации МВД России.</p>
+                    <div class="news-meta">
+                        <span> Технологии</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        © МВД России, 2025<br>
+        Официальный сайт
+    </div>
+
+    <script>
+        // Обработчики для меню
+        const menuBtn = document.getElementById('menuBtn');
+        const closeBtn = document.getElementById('closeBtn');
+        const navMenu = document.getElementById('navMenu');
+        const overlay = document.getElementById('overlay');
+
+        menuBtn.addEventListener('click', () => {
+            navMenu.classList.add('active');
+            overlay.classList.add('active');
+        });
+
+        closeBtn.addEventListener('click', () => {
+            navMenu.classList.remove('active');
+            overlay.classList.remove('active');
+        });
+
+        overlay.addEventListener('click', () => {
+            navMenu.classList.remove('active');
+            overlay.classList.remove('active');
+        });
+
+        // Обработчик для поиска
+        document.querySelector('.search-btn').addEventListener('click', () => {
+            alert('Функция поиска будет реализована в ближайшее время');
+        });
+
+        // Обработчики для быстрых ссылок
+        document.querySelectorAll('.quick-link').forEach(link => {
+            link.addEventListener('click', () => {
+                alert('Данный раздел находится в разработке');
+            });
+        });
+    </script>
+</body>
+</html>
